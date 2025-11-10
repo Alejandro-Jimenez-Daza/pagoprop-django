@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm
+from .models import Apartamento, PropietarioApartamento, Comprobante
 
 # Vista de Registro
 def registro_view(request):
@@ -46,8 +47,25 @@ def logout_view(request):
     return redirect('login')
 
 # Vista de Dashboard (requiere login)
+# Modifica la vista dashboard_view
 @login_required(login_url='login')
 def dashboard_view(request):
+    # Contar apartamentos del usuario
+    total_apartamentos = request.user.apartamentos.count()
+    
     return render(request, 'pagoprop/dashboard.html', {
-        'user': request.user
+        'user': request.user,
+        'total_apartamentos': total_apartamentos
+    })
+
+# Nueva vista para mostrar apartamentos
+@login_required(login_url='login')
+def mis_apartamentos_view(request):
+    # Buscar apartamentos del usuario logueado
+    # through='PropietarioApartamento' nos permite hacer esta consulta
+    apartamentos = request.user.apartamentos.all()
+    
+    # Enviar los apartamentos al template
+    return render(request, 'pagoprop/mis_apartamentos.html', {
+        'apartamentos': apartamentos
     })

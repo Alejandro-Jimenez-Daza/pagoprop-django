@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
 # Modelo APARTAMENTO
 class Apartamento(models.Model):
     apartamentoID = models.AutoField(primary_key=True, db_column='PK_apartamentoID')
     numeroApartamento = models.CharField(max_length=10, unique=True)
+    # Relación muchos a muchos con User
+    copropietarios = models.ManyToManyField('auth.User', through='PropietarioApartamento', related_name='apartamentos')
     
     class Meta:
         db_table = 'APARTAMENTO'

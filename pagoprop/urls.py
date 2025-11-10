@@ -6,4 +6,5 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('mis-apartamentos/', views.mis_apartamentos_view, name='mis_apartamentos'),  # 👈 NUEVA
 ]

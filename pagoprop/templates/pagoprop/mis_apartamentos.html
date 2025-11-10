@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Apartamentos - PagoProp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">PagoProp</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'mis_apartamentos' %}">Mis Apartamentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="navbar-text text-white me-3">
+                            Hola, {{ user.first_name }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Mis Apartamentos</h1>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            {% if apartamentos %}
+                {% for apartamento in apartamentos %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-building"></i> 
+                                    Apartamento {{ apartamento.numeroApartamento }}
+                                </h5>
+                                <hr>
+                                <p class="card-text">
+                                    <strong>ID:</strong> {{ apartamento.apartamentoID }}<br>
+                                    <strong>Número:</strong> {{ apartamento.numeroApartamento }}
+                                </p>
+                                <a href="#" class="btn btn-primary btn-sm">Ver detalles</a>
+                                <a href="#" class="btn btn-success btn-sm">Subir comprobante</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">No tienes apartamentos asignados</h4>
+                        <p>Actualmente no tienes apartamentos vinculados a tu cuenta.</p>
+                        <hr>
+                        <p class="mb-0">Contacta al administrador para que te asigne un apartamento.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    ← Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
