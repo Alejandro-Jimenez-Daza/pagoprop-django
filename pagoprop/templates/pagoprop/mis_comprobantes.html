@@ -1,137 +1,104 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Comprobantes - PagoProp</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">PagoProp</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'mis_apartamentos' %}">Mis Apartamentos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'mis_comprobantes' %}">Mis Comprobantes</a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="navbar-text text-white me-3">
-                            Hola, {{ user.first_name }}
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">Cerrar Sesión</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<!-- templates/subir_comprobante.html -->
+{% extends 'pagoprop/herencia.html' %}
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Mis Comprobantes de Pago</h1>
-                    <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                        ➕ Subir Nuevo Comprobante
-                    </a>
-                </div>
-            </div>
-        </div>
+{% block title %}Mis comprobantes{% endblock %}
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+{% block content %}
 
-        <div class="row">
-            {% if comprobantes %}
-                <div class="col-12">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered shadow-sm">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Apartamento</th>
-                                    <th>Monto</th>
-                                    <th>Fecha</th>
-                                    <th>Archivo</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for comprobante in comprobantes %}
-                                    <tr>
-                                        <td>{{ comprobante.comprobanteID }}</td>
-                                        <td>
-                                            <span class="badge bg-primary">
-                                                Apt. {{ comprobante.apartamento.numeroApartamento }}
-                                            </span>
-                                        </td>
-                                        <td class="fw-bold text-success">
-                                            ${{ comprobante.monto|floatformat:2 }}
-                                        </td>
-                                        <td>{{ comprobante.fecha_creacion|date:"d/m/Y H:i" }}</td>
-                                        <td>
-                                            {% if comprobante.archivo %}
-                                                <a href="{{ comprobante.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
-                                                    📄 Ver Archivo
-                                                </a>
-                                            {% else %}
-                                                <span class="text-muted">Sin archivo</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="#" class="btn btn-sm btn-warning" title="Editar">
-                                                ✏️
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-danger" title="Eliminar">
-                                                🗑️
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info text-center" role="alert">
-                        <h4 class="alert-heading">No tienes comprobantes registrados</h4>
-                        <p>Aún no has subido ningún comprobante de pago.</p>
-                        <hr>
-                        <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                            ➕ Subir mi primer comprobante
-                        </a>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-12">
-                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-                    ← Volver al Dashboard
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Mis Comprobantes de Pago</h1>
+                <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
+                    ➕ Subir Nuevo Comprobante
                 </a>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        {% if comprobantes %}
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered shadow-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Apartamento</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Archivo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comprobante in comprobantes %}
+                        <tr>
+                            <td>{{ comprobante.comprobanteID }}</td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    Apt. {{ comprobante.apartamento.numeroApartamento }}
+                                </span>
+                            </td>
+                            <td class="fw-bold text-success">
+                                ${{ comprobante.monto|floatformat:2 }}
+                            </td>
+                            <td>{{ comprobante.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if comprobante.archivo %}
+                                <a href="{{ comprobante.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
+                                    📄 Ver Archivo
+                                </a>
+                                {% else %}
+                                <span class="text-muted">Sin archivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-warning" title="Editar">
+                                    ✏️
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger" title="Eliminar">
+                                    🗑️
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                <h4 class="alert-heading">No tienes comprobantes registrados</h4>
+                <p>Aún no has subido ningún comprobante de pago.</p>
+                <hr>
+                <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
+                    ➕ Subir mi primer comprobante
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                ← Volver al Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

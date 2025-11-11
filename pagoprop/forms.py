@@ -74,3 +74,6 @@ class ComprobanteForm(forms.ModelForm):
         super(ComprobanteForm, self).__init__(*args, **kwargs)
         # Filtrar solo apartamentos del usuario logueado
         self.fields['apartamento'].queryset = user.apartamentos.all()
+
+
+        
