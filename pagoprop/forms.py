@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import Comprobante, Apartamento
 
 # Formulario de Registro
 class RegistroForm(UserCreationForm):
@@ -33,6 +34,7 @@ class RegistroForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
 
+
 # Formulario de Login
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
@@ -43,3 +45,32 @@ class LoginForm(AuthenticationForm):
         'class': 'form-control',
         'placeholder': 'Contraseña'
     }))
+
+
+# Formulario para subir comprobantes
+class ComprobanteForm(forms.ModelForm):
+    class Meta:
+        model = Comprobante
+        fields = ['apartamento', 'archivo', 'monto']
+        widgets = {
+            'apartamento': forms.Select(attrs={'class': 'form-select'}),
+            'archivo': forms.FileInput(attrs={
+                'class': 'form-control', 
+                'accept': 'image/*,application/pdf'
+            }),
+            'monto': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Ej: 150000', 
+                'step': '0.01'
+            }),
+        }
+        labels = {
+            'apartamento': 'Selecciona tu apartamento',
+            'archivo': 'Comprobante (imagen o PDF)',
+            'monto': 'Monto pagado',
+        }
+    
+    def __init__(self, user, *args, **kwargs):
+        super(ComprobanteForm, self).__init__(*args, **kwargs)
+        # Filtrar solo apartamentos del usuario logueado
+        self.fields['apartamento'].queryset = user.apartamentos.all()

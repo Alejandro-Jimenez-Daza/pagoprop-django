@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistroForm, LoginForm
+from .forms import RegistroForm, LoginForm, ComprobanteForm  # Actualiza el import
+
 from .models import Apartamento, PropietarioApartamento, Comprobante
 
 # Vista de Registro
@@ -47,16 +48,23 @@ def logout_view(request):
     return redirect('login')
 
 # Vista de Dashboard (requiere login)
+
 # Modifica la vista dashboard_view
+
 @login_required(login_url='login')
 def dashboard_view(request):
     # Contar apartamentos del usuario
     total_apartamentos = request.user.apartamentos.count()
+    # Contar comprobantes del usuario
+    total_comprobantes = Comprobante.objects.filter(copropietario=request.user).count()
     
     return render(request, 'pagoprop/dashboard.html', {
         'user': request.user,
-        'total_apartamentos': total_apartamentos
+        'total_apartamentos': total_apartamentos,
+        'total_comprobantes': total_comprobantes,
     })
+
+
 
 # Nueva vista para mostrar apartamentos
 @login_required(login_url='login')
@@ -68,4 +76,47 @@ def mis_apartamentos_view(request):
     # Enviar los apartamentos al template
     return render(request, 'pagoprop/mis_apartamentos.html', {
         'apartamentos': apartamentos
+    })
+
+
+# Vista para subir comprobantes
+@login_required(login_url='login')
+def subir_comprobante_view(request):
+    if request.method == 'POST':
+        # Crear formulario con los datos enviados
+        form = ComprobanteForm(request.user, request.POST, request.FILES)
+        
+        if form.is_valid():
+            # Guardar pero NO enviar a BD aún (commit=False)
+            comprobante = form.save(commit=False)
+            
+            # Asignar el usuario logueado como copropietario
+            comprobante.copropietario = request.user
+            
+            # AHORA SÍ guardar en la BD
+            comprobante.save()
+            
+            messages.success(request, '¡Comprobante subido exitosamente!')
+            return redirect('mis_comprobantes')
+        else:
+            messages.error(request, 'Error al subir el comprobante. Verifica los datos.')
+    else:
+        # GET: Mostrar formulario vacío
+        form = ComprobanteForm(request.user)
+    
+    return render(request, 'pagoprop/subir_comprobante.html', {
+        'form': form
+    })
+
+
+# Vista para ver mis comprobantes
+@login_required(login_url='login')
+def mis_comprobantes_view(request):
+    # Traer TODOS los comprobantes del usuario logueado
+    comprobantes = Comprobante.objects.filter(copropietario=request.user).order_by('-fecha_creacion')
+    # ↑ .filter(): Solo los del usuario
+    # ↑ .order_by('-fecha_creacion'): Más recientes primero (el - significa descendente)
+    
+    return render(request, 'pagoprop/mis_comprobantes.html', {
+        'comprobantes': comprobantes
     })
