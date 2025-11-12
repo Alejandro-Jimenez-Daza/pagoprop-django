@@ -42,7 +42,7 @@ class PropietarioApartamento(models.Model):
 # Modelo COMPROBANTE
 class Comprobante(models.Model):
     comprobanteID = models.AutoField(primary_key=True, db_column='PK_comprobanteID')
-    archivo = models.FileField(upload_to='comprobantes/', null=True, blank=True)
+    archivo = models.FileField(upload_to='comprobantes/') #aca elimino el null true y blank true para que no permita valores nulos en el formulario
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     copropietario = models.ForeignKey(
         'auth.User',  # Hace referencia a la tabla auth_user

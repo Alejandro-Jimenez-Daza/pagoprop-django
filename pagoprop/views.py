@@ -1,9 +1,9 @@
+import os
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm, ComprobanteForm  # Actualiza el import
-
 from .models import Apartamento, PropietarioApartamento, Comprobante
 
 # Vista de Registro
@@ -120,3 +120,23 @@ def mis_comprobantes_view(request):
     return render(request, 'pagoprop/mis_comprobantes.html', {
         'comprobantes': comprobantes
     })
+
+# Vista para eliminar comprobante
+@login_required(login_url='login')
+def eliminar_comprobante_view(request, comprobante_id):
+    try:
+        comprobante = Comprobante.objects.get(comprobanteID=comprobante_id, copropietario = request.user)
+    except Comprobante.DoesNotExist:
+        messages.error(request, 'Comprobante no encontrado o no tienes permiso para eliminarlo.')
+        return redirect('mis_comprobantes')
+    
+    #eliminar el archivo fisico del servidor
+    if comprobante.archivo:
+        if os.path.isfile(comprobante.archivo.path):
+            os.remove(comprobante.archivo.path)
+
+    #eliminar el registro de la base de datos
+    comprobante.delete()
+    
+    messages.success(request, '¡Comprobante eliminado exitosamente!')
+    return redirect('mis_comprobantes')
