@@ -58,10 +58,10 @@ class ComprobanteForm(forms.ModelForm):
                 'class': 'form-control', 
                 'accept': 'image/*,application/pdf'
             }),
-            'monto': forms.NumberInput(attrs={
+            'monto': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'Ej: 150000', 
-                'step': '0.01'
+                'placeholder': 'Ej: 1.200.000', 
+                'inputmode': 'numeric'
             }),
         }
         labels = {
@@ -74,6 +74,10 @@ class ComprobanteForm(forms.ModelForm):
         super(ComprobanteForm, self).__init__(*args, **kwargs)
         # Filtrar solo apartamentos del usuario logueado
         self.fields['apartamento'].queryset = user.apartamentos.all()
+
+        #EDITANDO TIENE INSTANCE, EL ARCHIVO SE HACE OPCIONAL
+        if self.instance and self.instance.pk:
+            self.fields['archivo'].required = False
 
 
         

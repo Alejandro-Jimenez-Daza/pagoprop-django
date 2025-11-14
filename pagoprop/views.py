@@ -140,3 +140,33 @@ def eliminar_comprobante_view(request, comprobante_id):
     
     messages.success(request, '¡Comprobante eliminado exitosamente!')
     return redirect('mis_comprobantes')
+
+
+@login_required(login_url='login')
+def editar_comprobante_view(request, comprobante_id):
+    #buscar el comprobante
+    try:
+        comprobante = Comprobante.objects.get(comprobanteID=comprobante_id, copropietario= request.user)
+    except Comprobante.DoesNotExist:
+        messages.error(request, 'Comprobante no encontrado o no tienes permisos para editarlo.')
+        return redirect('mis_comprobantes')
+    
+    if request.method == 'POST':
+        form = ComprobanteForm(request.user, request.POST, request.FILES, instance=comprobante)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, '¡Comprobante actualizado exitosamente!')
+            return redirect('mis_comprobantes')
+        else:
+            messages.error(request,'Error al actualizar el comprobante.')
+
+    else:
+        #mostrar formulario pre-llenado
+        form = ComprobanteForm(request.user, instance= comprobante)
+    
+    return render(request, 'pagoprop/editar_comprobante.html',{
+        'form':form,
+        'comprobante': comprobante
+    })
+

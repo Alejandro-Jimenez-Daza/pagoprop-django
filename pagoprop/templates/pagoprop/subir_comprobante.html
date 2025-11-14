@@ -80,4 +80,52 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const montoInput = document.querySelector('input[name="monto"]');
+    
+    if (montoInput) {
+        // Formatear mientras escribe
+        montoInput.addEventListener('input', function(e) {
+            // Quitar todo excepto números
+            let value = this.value.replace(/\D/g, '');
+            
+            if (value) {
+                // Formatear con separador de miles
+                value = parseInt(value).toLocaleString('es-CO');
+                this.value = value;
+            } else {
+                this.value = '';
+            }
+        });
+        
+        // Quitar formato antes de enviar
+        const form = montoInput.closest('form');
+        form.addEventListener('submit', function(e) {
+            let valorLimpio = montoInput.value.replace(/\./g, '');
+            
+            // Validar que haya un valor
+            if (!valorLimpio || valorLimpio === '0') {
+                e.preventDefault();
+                alert('Por favor ingresa un monto válido');
+                return false;
+            }
+            
+            montoInput.value = valorLimpio;
+        });
+        
+        // Prevenir que se pegue texto no numérico
+        montoInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            let pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            let numericValue = pastedText.replace(/\D/g, '');
+            if (numericValue) {
+                this.value = parseInt(numericValue).toLocaleString('es-CO');
+            }
+        });
+    }
+});
+</script>
+
+
 {% endblock %}

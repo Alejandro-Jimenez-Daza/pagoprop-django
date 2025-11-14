@@ -10,4 +10,6 @@ urlpatterns = [
     path('subir-comprobante/', views.subir_comprobante_view, name='subir_comprobante'),  # 👈 NUEVA
     path('mis-comprobantes/', views.mis_comprobantes_view, name='mis_comprobantes'),      # 👈 NUEVA
     path('eliminar-comprobante/<int:comprobante_id>/', views.eliminar_comprobante_view, name='eliminar_comprobante'),  # 👈 NUEVA
+    path('editar-comprobante/<int:comprobante_id>/', views.editar_comprobante_view, name='editar_comprobante'),  # 👈 NUEVA
+
 ]
