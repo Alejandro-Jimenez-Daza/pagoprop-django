@@ -22,3 +22,5 @@ class ComprobanteAdmin(admin.ModelAdmin):
     list_display = ['comprobanteID', 'copropietario', 'apartamento', 'monto', 'fecha_creacion']
     list_filter = ['fecha_creacion', 'apartamento']
     search_fields = ['copropietario__username', 'apartamento__numeroApartamento']
+
+    

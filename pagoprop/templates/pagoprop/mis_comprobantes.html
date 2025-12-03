@@ -126,6 +126,92 @@
     {% endif %}
 </div>
 
+<!-- paginacion -->
+
+{% if comprobantes.has_other_pages %}
+<div class="row mt-4">
+    <div class="col-12">
+        <nav aria-label="Paginacion de comprobantes">
+            <ul class="pagination justify-content-center">
+
+
+                <!-- boton primera pagina -->
+                {% if comprobantes.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Primera">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- boton anterior -->
+                {% if comprobantes.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ comprobantes.previous_page_number }}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+
+
+                <!-- numeros de pagina -->
+
+                {% for num in comprobantes.paginator.page_range %}
+                    {% if comprobantes.number == num %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > comprobantes.number|add:'-3' and num < comprobantes.number|add:'3' %} <li class="page-item">
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+
+                <!-- boton siguiente -->
+                {% if comprobantes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ comprobantes.next_page_number }}" aria-label="Siguiente">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                {% endif %}
+                
+
+                <!-- boton ultima pagina -->
+                 
+                 {% if comprobantes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ comprobantes.paginator.num_pages }}" aria-label="Última">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                 {% endif %}
+
+            </ul>
+        </nav>
+
+
+        <!-- informacion de paginacion -->
+        <p class="text-center text-muted">
+            Página {{ comprobantes.number }} de {{ comprobantes.paginator.num_pages }}
+            ({{ comprobantes.paginator.count }} comprobantes en total)
+        </p>
+    </div>
+</div>
+{% endif %}
+
+
+
 <div class="row mt-4">
     <div class="col-12">
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">

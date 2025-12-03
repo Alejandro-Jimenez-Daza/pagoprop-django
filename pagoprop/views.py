@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm, ComprobanteForm  # Actualiza el import
 from .models import Apartamento, PropietarioApartamento, Comprobante
+# importo el paginador
+from django.core.paginator import Paginator
 
 # Vista de Registro
 def registro_view(request):
@@ -113,13 +115,30 @@ def subir_comprobante_view(request):
 @login_required(login_url='login')
 def mis_comprobantes_view(request):
     # Traer TODOS los comprobantes del usuario logueado
-    comprobantes = Comprobante.objects.filter(copropietario=request.user).order_by('-fecha_creacion')
+    comprobantes_list = Comprobante.objects.filter(copropietario=request.user).order_by('-fecha_creacion')
     # ↑ .filter(): Solo los del usuario
     # ↑ .order_by('-fecha_creacion'): Más recientes primero (el - significa descendente)
     
+    # creo el paginador de 10 por pagina 
+    paginator = Paginator(comprobantes_list, 10)
+
+    #obtener el numero de pagina actual desde la URL (?page = 2)
+    page_number = request.GET.get('page')
+    # ↑ Lee el parámetro ?page=2 de la URL
+    # Si no existe, devuelve None
+
+    #obtener los comprobantes de la pagina
+    comprobantes= paginator.get_page(page_number)
+    
+    # ↑ Obtiene los comprobantes de esa página específica
+    # Si page_number es None, devuelve la página 1
+    # Si page_number es 999 (no existe), devuelve la última página
+
     return render(request, 'pagoprop/mis_comprobantes.html', {
         'comprobantes': comprobantes
     })
+
+
 
 # Vista para eliminar comprobante
 @login_required(login_url='login')
