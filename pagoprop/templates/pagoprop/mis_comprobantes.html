@@ -13,7 +13,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Mis Comprobantes de Pago</h1>
             <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                ➕ Subir Nuevo Comprobante
+                 <i class="fas fa-plus-circle"></i> Subir Nuevo Comprobante
             </a>
         </div>
     </div>
@@ -59,7 +59,7 @@
                         <td>
                             {% if comprobante.archivo %}
                             <a href="{{ comprobante.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
-                                📄 Ver Archivo
+                                <i class="fa-regular fa-file-lines"></i> Ver Archivo
                             </a>
                             {% else %}
                             <span class="text-muted">Sin archivo</span>
@@ -67,13 +67,15 @@
                         </td>
                         <td>
                             <a href="{% url 'editar_comprobante' comprobante.comprobanteID %}" 
-                            class="btn btn-sm btn-warning" 
-                            title="Editar">
-                                ✏️
+                                class="btn btn-sm btn-warning" 
+                                title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i>
                             </a>
-                            <a href="#" class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal"
-                                data-bs-target="#modalEliminar{{ comprobante.comprobanteID }}">
-                                🗑️
+
+                            <a href="#" class="btn btn-sm btn-danger" title="Eliminar" 
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar{{ comprobante.comprobanteID }}">
+                                <i class="fa-regular fa-trash-can"></i>
                             </a>
 
                             <!-- Modal de confirmación -->
@@ -119,7 +121,7 @@
             <p>Aún no has subido ningún comprobante de pago.</p>
             <hr>
             <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                ➕ Subir mi primer comprobante
+                  <i class="fas fa-plus-circle"></i> Subir mi primer comprobante
             </a>
         </div>
     </div>
@@ -215,7 +217,7 @@
 <div class="row mt-4">
     <div class="col-12">
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-            ← Volver al Dashboard
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
         </a>
     </div>
 </div>

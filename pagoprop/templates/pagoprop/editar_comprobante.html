@@ -10,7 +10,7 @@
         <!-- Encabezado con ícono -->
         <div class="mb-4">
             <h2 class="fw-bold">
-                <span class="text-warning">✏️</span> Editar Comprobante
+                <i class="fas fa-edit text-warning"></i> Editar Comprobante
             </h2>
             <p class="text-muted">Modifica la información del comprobante de pago</p>
         </div>
@@ -29,7 +29,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-light">
-                        <h6 class="mb-0 fw-bold">📋 Información Actual</h6>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-clipboard-list"></i> Información Actual</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -52,7 +52,7 @@
                             <div class="mt-4">
                                 <small class="text-muted d-block mb-2">Archivo actual</small>
                                 <a href="{{ comprobante.archivo.url }}" target="_blank" class="btn btn-sm btn-info w-100">
-                                    📄 Ver comprobante
+                                    <i class="fas fa-file-alt"></i> Ver comprobante
                                 </a>
                             </div>
                         {% endif %}
@@ -73,7 +73,7 @@
                             <!-- Campo Apartamento -->
                             <div class="mb-4">
                                 <label class="form-label fw-bold">
-                                    🏢 {{ form.apartamento.label }}
+                                    <i class="fas fa-building"></i> {{ form.apartamento.label }}
                                 </label>
                                 {{ form.apartamento }}
                                 {% if form.apartamento.errors %}
@@ -87,7 +87,7 @@
                             <!-- Campo Monto -->
                             <div class="mb-4">
                                 <label class="form-label fw-bold">
-                                    💵 {{ form.monto.label }}
+                                    <i class="fas fa-dollar-sign"></i> {{ form.monto.label }}
                                 </label>
                                 {{ form.monto }}
                                 {% if form.monto.errors %}
@@ -101,7 +101,7 @@
                             <!-- Campo Archivo -->
                             <div class="mb-4">
                                 <label class="form-label fw-bold">
-                                    📎 {{ form.archivo.label }}
+                                    <i class="fas fa-paperclip"></i> {{ form.archivo.label }}
                                 </label>
                                 {{ form.archivo }}
                                 {% if form.archivo.errors %}
@@ -117,10 +117,10 @@
                             <!-- Botones -->
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-warning btn-lg">
-                                    <strong>✓ Guardar Cambios</strong>
+                                    <strong><i class="fas fa-save"></i> Guardar Cambios</strong>
                                 </button>
                                 <a href="{% url 'mis_comprobantes' %}" class="btn btn-outline-secondary">
-                                    ← Cancelar y volver
+                                    <i class="fas fa-arrow-left"></i> Cancelar y volver
                                 </a>
                             </div>
                         </form>

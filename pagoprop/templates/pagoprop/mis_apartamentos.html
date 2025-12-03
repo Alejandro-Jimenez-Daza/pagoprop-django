@@ -8,7 +8,9 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-4">Mis Apartamentos</h1>
+        <h1 class="mb-4">
+             <i class="fas fa-building"></i> Mis Apartamentos
+        </h1>
     </div>
 </div>
 
@@ -36,8 +38,10 @@
                     <strong>ID:</strong> {{ apartamento.apartamentoID }}<br>
                     <strong>Número:</strong> {{ apartamento.numeroApartamento }}
                 </p>
-                <a href="#" class="btn btn-primary btn-sm">Ver detalles</a>
-                <a href="{% url 'subir_comprobante' %}" class="btn btn-success btn-sm">Subir comprobante</a>
+                <a href="#" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> Ver detalles
+                </a>
+                <a href="{% url 'subir_comprobante' %}" class="btn btn-success btn-sm"><i class="fas fa-upload"></i> Subir comprobante</a>
             </div>
         </div>
     </div>
@@ -57,7 +61,7 @@
 <div class="row mt-4">
     <div class="col-12">
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-            ← Volver al Dashboard
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
         </a>
     </div>
 </div>
