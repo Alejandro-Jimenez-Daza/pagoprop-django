@@ -3,10 +3,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistroForm, LoginForm, ComprobanteForm  # Actualiza el import
+from .forms import RegistroForm, LoginForm, ComprobanteForm, FiltroComprobantesForm # Actualiza el import
 from .models import Apartamento, PropietarioApartamento, Comprobante
 # importo el paginador
 from django.core.paginator import Paginator
+#importo formulario de filtros
+
 
 # Vista de Registro
 def registro_view(request):
@@ -114,12 +116,44 @@ def subir_comprobante_view(request):
 # Vista para ver mis comprobantes
 @login_required(login_url='login')
 def mis_comprobantes_view(request):
+
     # Traer TODOS los comprobantes del usuario logueado
     comprobantes_list = Comprobante.objects.filter(copropietario=request.user).order_by('-fecha_creacion')
     # ↑ .filter(): Solo los del usuario
     # ↑ .order_by('-fecha_creacion'): Más recientes primero (el - significa descendente)
-    
-    # creo el paginador de 10 por pagina 
+
+    # CREAR FORMULARIO DE FILTROS
+    filtro_form = FiltroComprobantesForm(request.user, request.GET)
+
+    if filtro_form.is_valid():
+
+        #filtrar por apartamento
+        apartamento = filtro_form.cleaned_data.get('apartamento')
+        if apartamento:
+            comprobantes_list = comprobantes_list.filter(apartamento=apartamento)
+
+        #filtrar por fecha desde
+        fecha_desde = filtro_form.cleaned_data.get('fecha_desde')
+        if fecha_desde:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__gte=fecha_desde)
+        
+        #filtrar por fecha hasta
+        fecha_hasta = filtro_form.cleaned_data.get('fecha_hasta')
+        if fecha_hasta:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__lte=fecha_hasta)
+
+        #filtrar por monto minimo
+        monto_minimo = filtro_form.cleaned_data.get('monto_minimo')
+        if monto_minimo:
+            comprobantes_list = comprobantes_list.filter(monto__gte=monto_minimo)
+
+        #filtrar por monto maximo
+        monto_maximo = filtro_form.cleaned_data.get('monto_maximo')
+        if monto_maximo:
+            comprobantes_list = comprobantes_list.filter(monto__lte=monto_maximo)
+
+
+    # CREAR PAGINADOR {10 POR PAGINA}
     paginator = Paginator(comprobantes_list, 10)
 
     #obtener el numero de pagina actual desde la URL (?page = 2)

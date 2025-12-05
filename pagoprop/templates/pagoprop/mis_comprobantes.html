@@ -1,33 +1,146 @@
-<!-- templates/subir_comprobante.html -->
 {% extends 'pagoprop/herencia.html' %}
 
-{% load humanize %} <!-- esta linea es para la coma de miles que separa el numero -->
+{% load humanize %}
 
 {% block title %}Mis comprobantes{% endblock %}
 
 {% block content %}
-
 
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Mis Comprobantes de Pago</h1>
             <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                 <i class="fas fa-plus-circle"></i> Subir Nuevo Comprobante
+                <i class="fas fa-plus-circle"></i> Subir Nuevo Comprobante
             </a>
         </div>
     </div>
 </div>
 
 {% if messages %}
-{% for message in messages %}
-<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-{% endfor %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
 {% endif %}
 
+<!-- 🔍 FORMULARIO DE FILTROS -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-filter"></i> Filtros de búsqueda
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{% url 'mis_comprobantes' %}">
+                    <div class="row g-3 align-items-end">
+                        <!-- Filtro: Apartamento -->
+                        <div class="col-md-3">
+                            <label for="id_apartamento" class="form-label fw-bold">
+                                <i class="fas fa-building"></i> Apartamento
+                            </label>
+                            <select name="apartamento" class="form-select" id="id_apartamento">
+                                <option value="">Todos los apartamentos</option>
+                                    {% for apt in user.apartamentos.all %}
+                                <option value="{{ apt.apartamentoID }}" 
+                                    {% if request.GET.apartamento == apt.apartamentoID|stringformat:"s" %}selected{% endif %}>
+                                    Apto. {{ apt.numeroApartamento }}
+                                </option>
+                                    {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Filtro: Fecha desde -->
+                        <div class="col-md-2">
+                            <label for="id_fecha_desde" class="form-label fw-bold">
+                                <i class="fas fa-calendar-alt"></i> Desde
+                            </label>
+                            <input type="date" 
+                                   name="fecha_desde" 
+                                   class="form-control" 
+                                   id="id_fecha_desde"
+                                   value="{{ request.GET.fecha_desde }}">
+                        </div>
+                        
+                        <!-- Filtro: Fecha hasta -->
+                        <div class="col-md-2">
+                            <label for="id_fecha_hasta" class="form-label fw-bold">
+                                <i class="fas fa-calendar-alt"></i> Hasta
+                            </label>
+                            <input type="date" 
+                                   name="fecha_hasta" 
+                                   class="form-control" 
+                                   id="id_fecha_hasta"
+                                   value="{{ request.GET.fecha_hasta }}">
+                        </div>
+                        
+                        <!-- Filtro: Monto mínimo -->
+                        <div class="col-md-2">
+                            <label for="id_monto_minimo" class="form-label fw-bold">
+                                <i class="fas fa-dollar-sign"></i> Monto mín.
+                            </label>
+                            <input type="number" 
+                                   name="monto_minimo" 
+                                   class="form-control" 
+                                   id="id_monto_minimo"
+                                   placeholder="100000"
+                                   value="{{ request.GET.monto_minimo }}">
+                        </div>
+                        
+                        <!-- Filtro: Monto máximo -->
+                        <div class="col-md-2">
+                            <label for="id_monto_maximo" class="form-label fw-bold">
+                                <i class="fas fa-dollar-sign"></i> Monto máx.
+                            </label>
+                            <input type="number" 
+                                   name="monto_maximo" 
+                                   class="form-control" 
+                                   id="id_monto_maximo"
+                                   placeholder="500000"
+                                   value="{{ request.GET.monto_maximo }}">
+                        </div>
+                        
+                        <!-- Botón buscar -->
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary w-100" title="Buscar">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón limpiar -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <a href="{% url 'mis_comprobantes' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times"></i> Limpiar filtros
+                            </a>
+                            
+                            {% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or request.GET.monto_minimo or request.GET.monto_maximo %}
+                                <span class="badge bg-info ms-2">
+                                    <i class="fas fa-filter"></i> Filtros activos
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mostrar resultados -->
+{% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or request.GET.monto_minimo or request.GET.monto_maximo %}
+<div class="alert alert-info mb-3">
+    <i class="fas fa-info-circle"></i> 
+    Se encontraron <strong>{{ comprobantes.paginator.count }}</strong> comprobante(s) con los filtros aplicados.
+</div>
+{% endif %}
+
+<!-- TABLA DE COMPROBANTES -->
 <div class="row">
     {% if comprobantes %}
     <div class="col-12">
@@ -69,12 +182,12 @@
                             <a href="{% url 'editar_comprobante' comprobante.comprobanteID %}" 
                                 class="btn btn-sm btn-warning" 
                                 title="Editar">
-                                    <i class="fa-regular fa-pen-to-square"></i>
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </a>
 
                             <a href="#" class="btn btn-sm btn-danger" title="Eliminar" 
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalEliminar{{ comprobante.comprobanteID }}">
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEliminar{{ comprobante.comprobanteID }}">
                                 <i class="fa-regular fa-trash-can"></i>
                             </a>
 
@@ -84,23 +197,20 @@
                                     <div class="modal-content">
                                         <div class="modal-header bg-danger text-white">
                                             <h5 class="modal-title">Confirmar Eliminación</h5>
-                                            <button type="button" class="btn-close btn-close-white"
-                                                data-bs-dismiss="modal"></button>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
                                             <p>¿Estás seguro de eliminar este comprobante?</p>
-                                                <ul>
-                                                    <li><strong>Apartamento:</strong> {{ comprobante.apartamento.numeroApartamento }}</li>
-                                                    <li><strong>Monto:</strong> ${{ comprobante.monto|floatformat:0|intcomma }}</li>
-                                                    <li><strong>Fecha:</strong> {{ comprobante.fecha_creacion|date:"d/m/Y" }}</li>
-                                                </ul>
+                                            <ul>
+                                                <li><strong>Apartamento:</strong> {{ comprobante.apartamento.numeroApartamento }}</li>
+                                                <li><strong>Monto:</strong> ${{ comprobante.monto|floatformat:0|intcomma }}</li>
+                                                <li><strong>Fecha:</strong> {{ comprobante.fecha_creacion|date:"d/m/Y" }}</li>
+                                            </ul>
                                             <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Cancelar</button>
-                                            <a href="{% url 'eliminar_comprobante' comprobante.comprobanteID %}"
-                                                class="btn btn-danger">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <a href="{% url 'eliminar_comprobante' comprobante.comprobanteID %}" class="btn btn-danger">
                                                 Sí, eliminar
                                             </a>
                                         </div>
@@ -121,64 +231,59 @@
             <p>Aún no has subido ningún comprobante de pago.</p>
             <hr>
             <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
-                  <i class="fas fa-plus-circle"></i> Subir mi primer comprobante
+                <i class="fas fa-plus-circle"></i> Subir mi primer comprobante
             </a>
         </div>
     </div>
     {% endif %}
 </div>
 
-<!-- paginacion -->
-
+<!-- PAGINACIÓN -->
 {% if comprobantes.has_other_pages %}
 <div class="row mt-4">
     <div class="col-12">
-        <nav aria-label="Paginacion de comprobantes">
+        <nav aria-label="Paginación de comprobantes">
             <ul class="pagination justify-content-center">
-
-
-                <!-- boton primera pagina -->
+                
+                <!-- Primera página -->
                 {% if comprobantes.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="Primera">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" aria-label="Primera">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
                 {% endif %}
-
-                <!-- boton anterior -->
+                
+                <!-- Anterior -->
                 {% if comprobantes.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ comprobantes.previous_page_number }}" aria-label="Anterior">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ comprobantes.previous_page_number }}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
                 {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;</span>
-                </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
                 {% endif %}
-
-
-                <!-- numeros de pagina -->
-
+                
+                <!-- Números de página -->
                 {% for num in comprobantes.paginator.page_range %}
                     {% if comprobantes.number == num %}
                         <li class="page-item active" aria-current="page">
                             <span class="page-link">{{ num }}</span>
                         </li>
-                    {% elif num > comprobantes.number|add:'-3' and num < comprobantes.number|add:'3' %} <li class="page-item">
+                    {% elif num > comprobantes.number|add:'-3' and num < comprobantes.number|add:'3' %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
-
-
-                <!-- boton siguiente -->
+                
+                <!-- Siguiente -->
                 {% if comprobantes.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ comprobantes.next_page_number }}" aria-label="Siguiente">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ comprobantes.next_page_number }}" aria-label="Siguiente">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -188,22 +293,18 @@
                     </li>
                 {% endif %}
                 
-
-                <!-- boton ultima pagina -->
-                 
-                 {% if comprobantes.has_next %}
+                <!-- Última página -->
+                {% if comprobantes.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ comprobantes.paginator.num_pages }}" aria-label="Última">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ comprobantes.paginator.num_pages }}" aria-label="Última">
                             <span aria-hidden="true">&raquo;&raquo;</span>
                         </a>
                     </li>
-                 {% endif %}
-
+                {% endif %}
+                
             </ul>
         </nav>
-
-
-        <!-- informacion de paginacion -->
+        
         <p class="text-center text-muted">
             Página {{ comprobantes.number }} de {{ comprobantes.paginator.num_pages }}
             ({{ comprobantes.paginator.count }} comprobantes en total)
@@ -211,8 +312,6 @@
     </div>
 </div>
 {% endif %}
-
-
 
 <div class="row mt-4">
     <div class="col-12">

@@ -29,7 +29,7 @@ class RegistroForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': 'Confirmar contraseña'
     }))
-    
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
@@ -55,12 +55,12 @@ class ComprobanteForm(forms.ModelForm):
         widgets = {
             'apartamento': forms.Select(attrs={'class': 'form-select'}),
             'archivo': forms.FileInput(attrs={
-                'class': 'form-control', 
+                'class': 'form-control',
                 'accept': 'image/*,application/pdf'
             }),
             'monto': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Ej: 1.200.000', 
+                'class': 'form-control',
+                'placeholder': 'Ej: 1.200.000',
                 'inputmode': 'numeric'
             }),
         }
@@ -69,7 +69,7 @@ class ComprobanteForm(forms.ModelForm):
             'archivo': 'Comprobante (imagen o PDF)',
             'monto': 'Monto pagado',
         }
-    
+
     def __init__(self, user, *args, **kwargs):
         super(ComprobanteForm, self).__init__(*args, **kwargs)
         # Filtrar solo apartamentos del usuario logueado
@@ -80,4 +80,54 @@ class ComprobanteForm(forms.ModelForm):
             self.fields['archivo'].required = False
 
 
-        
+# formulario para filtro de busqueda
+class FiltroComprobantesForm(forms.Form):
+
+    apartamento = forms.ModelChoiceField(
+        queryset=None,
+        required=False,
+        empty_label='Todos los apartamentos',
+        widget=forms.Select(attrs={'class':'form-select'})
+    )
+
+    fecha_desde = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class':'form-control',
+            'type':'date'
+        }),
+        label='Fecha desde'
+    )
+
+    fecha_hasta = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class':'form-control',
+            'type':'date'
+        }),
+        label='Fecha hasta'
+    )
+
+    monto_minimo = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class':'form-control',
+            'placeholder': 'Monto mínimo'
+        }),
+        label='Monto mínimo'
+    )
+
+    monto_maximo = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class':'form-control',
+            'placeholder': 'Monto máximo'
+        }),
+        label='Monto máximo'
+    )
+
+    
+    def __init__(self, user, *args, **kwargs):
+        super(FiltroComprobantesForm, self).__init__(*args, **kwargs)
+        #filtrar solo apartamentos del usuario
+        self.fields['apartamento'].queryset = user.apartamentos.all()
