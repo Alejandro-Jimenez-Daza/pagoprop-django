@@ -11,5 +11,7 @@ urlpatterns = [
     path('mis-comprobantes/', views.mis_comprobantes_view, name='mis_comprobantes'),      # 👈 NUEVA
     path('eliminar-comprobante/<int:comprobante_id>/', views.eliminar_comprobante_view, name='eliminar_comprobante'),  # 👈 NUEVA
     path('editar-comprobante/<int:comprobante_id>/', views.editar_comprobante_view, name='editar_comprobante'),  # 👈 NUEVA
+    path('apartamento/<int:apartamento_id>/', views.detalle_apartamento_view, name='detalle_apartamento'),  # 👈 NUEVA
+
 
 ]

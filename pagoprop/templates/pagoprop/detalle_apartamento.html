@@ -1,0 +1,192 @@
+{% extends 'pagoprop/herencia.html' %}
+
+{% load humanize %}
+
+{% block title %}Detalles Apartamento {{ apartamento.numeroApartamento }}{% endblock %}
+
+{% block content %}
+
+<!-- Encabezado -->
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'mis_apartamentos' %}">Mis Apartamentos</a></li>
+                <li class="breadcrumb-item active">Apto. {{ apartamento.numeroApartamento }}</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>
+                <i class="fas fa-building text-primary"></i> 
+                Apartamento {{ apartamento.numeroApartamento }}
+            </h1>
+            <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
+                <i class="fas fa-upload"></i> Subir Comprobante
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Tarjetas de estadísticas -->
+<div class="row mb-4">
+    <!-- Total pagado -->
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+                <h6 class="text-muted">Total Pagado</h6>
+                <h2 class="text-success">
+                    {% if stats.total_pagado %}
+                        ${{ stats.total_pagado|floatformat:0|intcomma }}
+                    {% else %}
+                        $0
+                    {% endif %}
+                </h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cantidad de pagos -->
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice-dollar fa-3x text-primary mb-3"></i>
+                <h6 class="text-muted">Comprobantes</h6>
+                <h2 class="text-primary">{{ stats.cantidad_pagos|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Promedio de pago -->
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                <h6 class="text-muted">Promedio de Pago</h6>
+                <h2 class="text-warning">
+                    {% if stats.promedio_pago %}
+                        ${{ stats.promedio_pago|floatformat:0|intcomma }}
+                    {% else %}
+                        $0
+                    {% endif %}
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Propietarios -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-users"></i> Propietarios del Apartamento
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if propietarios %}
+                    <ul class="list-unstyled mb-0">
+                        {% for prop in propietarios %}
+                            <li class="mb-2">
+                                <i class="fas fa-user text-primary"></i>
+                                <strong>{{ prop.copropietario.get_full_name }}</strong>
+                                <br>
+                                <small class="text-muted ms-4">{{ prop.copropietario.email }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">No hay propietarios asignados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historial de comprobantes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Historial de Pagos
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if comprobantes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Archivo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comprobante in comprobantes %}
+                                    <tr>
+                                        <td>{{ comprobante.comprobanteID }}</td>
+                                        <td class="fw-bold text-success">
+                                            ${{ comprobante.monto|floatformat:0|intcomma }}
+                                        </td>
+                                        <td>{{ comprobante.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if comprobante.archivo %}
+                                                <a href="{{ comprobante.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-file-alt"></i> Ver
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">Sin archivo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'editar_comprobante' comprobante.comprobanteID %}" 
+                                               class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> 
+                        Aún no hay comprobantes registrados para este apartamento.
+                        <br><br>
+                        <a href="{% url 'subir_comprobante' %}" class="btn btn-success">
+                            <i class="fas fa-upload"></i> Subir primer comprobante
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botón volver -->
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{% url 'mis_apartamentos' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Mis Apartamentos
+        </a>
+    </div>
+</div>
+
+{% endblock %}

@@ -223,3 +223,42 @@ def editar_comprobante_view(request, comprobante_id):
         'comprobante': comprobante
     })
 
+#funcion de ver detalles del apartamento
+@login_required(login_url='login')
+def detalle_apartamento_view(request, apartamento_id):
+    #buscar el apartamento
+    try:
+        apartamento = Apartamento.objects.get(apartamentoID=apartamento_id)
+    except Apartamento.DoesNotExist:
+        messages.error(request, 'Apartamento no encontrado.')
+        return redirect('mis_apartamentos')
+    
+    #verficar que el usuario es propietario de ese apartamento
+    if not PropietarioApartamento.objects.filter(copropietario = request.user, apartamento = apartamento).exists():
+        messages.error(request, 'No tienes acceso a este apartamento.')
+        return redirect('mis_apartamentos')
+    
+    #obtener comprobantes de este apartamento
+    comprobantes = Comprobante.objects.filter(
+        apartamento = apartamento,
+        copropietario = request.user
+    ).order_by('-fecha_creacion')
+
+
+    #calcular estadisticas
+    from django.db.models import Sum, Count, Avg
+    stats = comprobantes.aggregate(
+        total_pagado = Sum('monto'),
+        cantidad_pagos = Sum('comprobanteID'),
+        promedio_pago = Avg('monto')
+    )
+
+    #obtener todos los propietarios del apartamento
+    propietarios = PropietarioApartamento.objects.filter(apartamento=apartamento).select_related('copropietario')
+
+    return render(request, 'pagoprop/detalle_apartamento.html', {
+        'apartamento': apartamento,
+        'comprobantes': comprobantes,
+        'stats': stats,
+        'propietarios':propietarios
+    })
