@@ -4,10 +4,13 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm, ComprobanteForm, FiltroComprobantesForm # Actualiza el import
-from .models import Apartamento, PropietarioApartamento, Comprobante
+from .models import Apartamento, PropietarioApartamento, Comprobante, User
 # importo el paginador
 from django.core.paginator import Paginator
 #importo formulario de filtros
+#staff
+from django.contrib.admin.views.decorators import staff_member_required
+# from django.contrib.auth.models import User  # 👈 AGREGAR
 
 
 # Vista de Registro
@@ -249,7 +252,7 @@ def detalle_apartamento_view(request, apartamento_id):
     from django.db.models import Sum, Count, Avg
     stats = comprobantes.aggregate(
         total_pagado = Sum('monto'),
-        cantidad_pagos = Sum('comprobanteID'),
+        cantidad_pagos = Count('comprobanteID'),
         promedio_pago = Avg('monto')
     )
 
@@ -262,3 +265,121 @@ def detalle_apartamento_view(request, apartamento_id):
         'stats': stats,
         'propietarios':propietarios
     })
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+# Dashboard del administrador
+@staff_member_required(login_url='login')
+def admin_dashboard_view(request):
+    # Estadísticas generales del edificio
+    from django.db.models import Sum, Count, Avg
+    
+    # Total de usuarios
+    total_usuarios = User.objects.filter(is_superuser=False).count()
+    
+    # Total de apartamentos
+    total_apartamentos = Apartamento.objects.count()
+    
+    # Total de comprobantes
+    total_comprobantes = Comprobante.objects.count()
+    
+    # Total recaudado
+    total_recaudado = Comprobante.objects.aggregate(total=Sum('monto'))['total'] or 0
+    
+    # Comprobantes recientes (últimos 10)
+    comprobantes_recientes = Comprobante.objects.select_related(
+        'copropietario', 'apartamento'
+    ).order_by('-fecha_creacion')[:10]
+    
+    # Apartamentos sin propietarios
+    apartamentos_sin_propietario = Apartamento.objects.annotate(
+        num_propietarios=Count('propietario_apartamentos')
+    ).filter(num_propietarios=0)
+    
+    return render(request, 'pagoprop/admin_dashboard.html', {
+        'total_usuarios': total_usuarios,
+        'total_apartamentos': total_apartamentos,
+        'total_comprobantes': total_comprobantes,
+        'total_recaudado': total_recaudado,
+        'comprobantes_recientes': comprobantes_recientes,
+        'apartamentos_sin_propietario': apartamentos_sin_propietario,
+
+    })
+
+# ver todos los comprobantes
+@staff_member_required(login_url='login')
+def admin_todos_comprobantes_view(request):
+    # obtener todos los comprobantes de todos los usuarios
+    comprobantes_list = Comprobante.objects.select_related(
+        'copropietario','apartamento'
+    ).order_by('-fecha_creacion')
+
+    #paginador
+    paginator = Paginator(comprobantes_list,20)#20 registros por pagina
+    page_number= request.GET.get('page')
+    comprobantes = paginator.get_page(page_number)
+
+    # estadisticas
+    from django.db.models import Sum, Count
+    stats= Comprobante.objects.aggregate(
+        total=Sum('monto'),
+        cantidad=Count('comprobanteID')
+    )
+
+
+    return render(request, 'pagoprop/admin_todos_comprobantes.html', {
+        'comprobantes': comprobantes,
+        'stats':stats
+    })
+
+
+# asignar apartamento a usuario (admin)
+@staff_member_required(login_url='login')
+def admin_asignar_apartamento_view(request):
+    if request.method == 'POST':
+        usuario_id = request.POST.get('usuario')
+        apartamento_id= request.POST.get('apartamento')
+
+        try:
+            usuario = User.objects.get(id=usuario_id)
+            apartamento = Apartamento.objects.get(apartamentoID=apartamento_id)
+
+            #verificar si ya existe la relacion
+            if PropietarioApartamento.objects.filter(
+                copropietario = usuario,
+                apartamento = apartamento
+            ).exists():
+                messages.warning(request, 'Este usuario ya tiene asignado este apartamento.')
+            else:
+                PropietarioApartamento.objects.create(
+                    copropietario = usuario,
+                    apartamento = apartamento
+                )
+                messages.success(request, f'✅ Apartamento {apartamento.numeroApartamento} asignado a {usuario.get_full_name()}')
+                return redirect('admin_asignar_apartamento')
+        
+        except (User.DoesNotExist, Apartamento.DoesNotExist):
+            messages.error(request, 'Usuario o apartamento no encontrado.')
+
+    # GET motrar formulario
+    usuarios= User.objects.filter(is_superuser=False).order_by('first_name', 'last_name')
+    apartamentos = Apartamento.objects.all().order_by('numeroApartamento')
+
+    # asignaciones actuales
+    asignaciones = PropietarioApartamento.objects.select_related(
+        'copropietario', 'apartamento'
+    ).order_by('apartamento__numeroApartamento')
+
+    return render(request, 'pagoprop/admin_asignar_apartamento.html',{
+        'usuarios': usuarios,
+        'apartamentos': apartamentos,
+        'asignaciones':asignaciones
+    })
+
+
+
+
+
+

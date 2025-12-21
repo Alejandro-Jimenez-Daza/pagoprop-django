@@ -1,0 +1,162 @@
+{% extends 'pagoprop/herencia.html' %}
+
+{% block title %}Asignar Apartamento - Admin{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Panel Admin</a></li>
+                <li class="breadcrumb-item active">Asignar Apartamento</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>
+                <i class="fas fa-user-plus text-success"></i> 
+                Asignar Apartamento a Usuario
+            </h1>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Formulario de asignación -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle"></i> Nueva Asignación
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="usuario" class="form-label fw-bold">
+                                <i class="fas fa-user"></i> Copropietario
+                            </label>
+                            <select name="usuario" id="usuario" class="form-select" required>
+                                <option value="">Selecciona un usuario...</option>
+                                {% for user in usuarios %}
+                                    <option value="{{ user.id }}">
+                                        {{ user.get_full_name }} ({{ user.username }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="apartamento" class="form-label fw-bold">
+                                <i class="fas fa-building"></i> Apartamento
+                            </label>
+                            <select name="apartamento" id="apartamento" class="form-select" required>
+                                <option value="">Selecciona un apartamento...</option>
+                                {% for apt in apartamentos %}
+                                    <option value="{{ apt.apartamentoID }}">
+                                        Apartamento {{ apt.numeroApartamento }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check"></i> Asignar Apartamento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm bg-light">
+            <div class="card-body">
+                <h6 class="fw-bold">
+                    <i class="fas fa-info-circle text-primary"></i> Información
+                </h6>
+                <ul class="small mb-0">
+                    <li>Un copropietario puede tener múltiples apartamentos</li>
+                    <li>Un apartamento puede tener múltiples copropietarios</li>
+                    <li>No se pueden crear asignaciones duplicadas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asignaciones actuales -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> Asignaciones Actuales
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if asignaciones %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Apartamento</th>
+                                    <th>Copropietario</th>
+                                    <th>Email</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asig in asignaciones %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary fs-6">
+                                                Apt. {{ asig.apartamento.numeroApartamento }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-user text-primary"></i>
+                                            {{ asig.copropietario.get_full_name }}
+                                        </td>
+                                        <td>{{ asig.copropietario.email }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" disabled title="Eliminar (próximamente)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> 
+                        No hay asignaciones registradas aún.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

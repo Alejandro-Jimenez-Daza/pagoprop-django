@@ -1,0 +1,184 @@
+{% extends 'pagoprop/herencia.html' %}
+
+{% load humanize %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>
+            <i class="fas fa-user-shield text-danger"></i>
+            Panel de Administración
+        </h1>
+        <p class="text-muted">Vista general del edificio</p>
+    </div>
+</div>
+
+<!-- Estadísticas generales -->
+<div class="row mb-4">
+    <!-- Total usuarios -->
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm h-100 border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h6 class="text-muted">Copropietarios</h6>
+                <h2 class="text-primary">{{ total_usuarios }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total apartamentos -->
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm h-100 border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-3x text-info mb-3"></i>
+                <h6 class="text-muted">Apartamentos</h6>
+                <h2 class="text-info">{{ total_apartamentos }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total comprobantes -->
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm h-100 border-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice fa-3x text-warning mb-3"></i>
+                <h6 class="text-muted">Comprobantes</h6>
+                <h2 class="text-warning">{{ total_comprobantes }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total recaudado -->
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm h-100 border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+                <h6 class="text-muted">Total Recaudado</h6>
+                <h3 class="text-success">${{ total_recaudado|floatformat:0|intcomma }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt"></i> Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+    <div class="col-md-4 mb-3">
+        <a href="{% url 'admin_todos_comprobantes' %}" class="btn btn-primary w-100">
+            <i class="fas fa-file-invoice-dollar"></i> Ver Todos los Comprobantes
+        </a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="{% url 'admin_asignar_apartamento' %}" class="btn btn-success w-100">
+            <i class="fas fa-user-plus"></i> Asignar Apartamento
+        </a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="/admin/" class="btn btn-secondary w-100">
+            <i class="fas fa-cog"></i> Django Admin
+        </a>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Apartamentos sin propietario -->
+{% if apartamentos_sin_propietario %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <h5 class="alert-heading">
+                <i class="fas fa-exclamation-triangle"></i> Apartamentos sin Propietario
+            </h5>
+            <p>Los siguientes apartamentos no tienen copropietarios asignados:</p>
+            <ul>
+                {% for apt in apartamentos_sin_propietario %}
+                <li>Apartamento {{ apt.numeroApartamento }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Comprobantes recientes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock"></i> Comprobantes Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if comprobantes_recientes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Copropietario</th>
+                                <th>Apartamento</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in comprobantes_recientes %}
+                            <tr>
+                                <td>{{ comp.comprobanteID }}</td>
+                                <td>{{ comp.copropietario.get_full_name }}</td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        Apt. {{ comp.apartamento.numeroApartamento }}
+                                    </span>
+                                </td>
+                                <td class="text-success fw-bold">
+                                    ${{ comp.monto|floatformat:0|intcomma }}
+                                </td>
+                                <td>{{ comp.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if comp.archivo %}
+                                    <a href="{{ comp.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No hay comprobantes registrados.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}

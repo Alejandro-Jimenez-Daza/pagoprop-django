@@ -1,0 +1,158 @@
+{% extends 'pagoprop/herencia.html' %}
+
+{% load humanize %}
+
+{% block title %}Todos los Comprobantes - Admin{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Panel Admin</a></li>
+                <li class="breadcrumb-item active">Todos los Comprobantes</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>
+                <i class="fas fa-file-invoice-dollar text-primary"></i> 
+                Todos los Comprobantes
+            </h1>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice fa-3x text-primary mb-3"></i>
+                <h6 class="text-muted">Total de Comprobantes</h6>
+                <h2 class="text-primary">{{ stats.cantidad }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+                <h6 class="text-muted">Total Recaudado</h6>
+                <h2 class="text-success">
+                    {% if stats.total %}
+                        ${{ stats.total|floatformat:0|intcomma }}
+                    {% else %}
+                        $0
+                    {% endif %}
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de comprobantes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> Lista Completa
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if comprobantes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Copropietario</th>
+                                    <th>Apartamento</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Archivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comp in comprobantes %}
+                                    <tr>
+                                        <td>{{ comp.comprobanteID }}</td>
+                                        <td>
+                                            <i class="fas fa-user text-primary"></i>
+                                            {{ comp.copropietario.get_full_name }}
+                                            <br>
+                                            <small class="text-muted">{{ comp.copropietario.email }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">
+                                                Apt. {{ comp.apartamento.numeroApartamento }}
+                                            </span>
+                                        </td>
+                                        <td class="text-success fw-bold">
+                                            ${{ comp.monto|floatformat:0|intcomma }}
+                                        </td>
+                                        <td>{{ comp.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if comp.archivo %}
+                                                <a href="{{ comp.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-file-alt"></i> Ver
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">Sin archivo</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    {% if comprobantes.has_other_pages %}
+                        <nav aria-label="Paginación" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if comprobantes.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">&laquo;&laquo;</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ comprobantes.previous_page_number }}">&laquo;</a>
+                                    </li>
+                                {% endif %}
+                                
+                                <li class="page-item active">
+                                    <span class="page-link">{{ comprobantes.number }}</span>
+                                </li>
+                                
+                                {% if comprobantes.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ comprobantes.next_page_number }}">&raquo;</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ comprobantes.paginator.num_pages }}">&raquo;&raquo;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                            <p class="text-center text-muted">
+                                Página {{ comprobantes.number }} de {{ comprobantes.paginator.num_pages }}
+                            </p>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> 
+                        No hay comprobantes registrados en el sistema.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
