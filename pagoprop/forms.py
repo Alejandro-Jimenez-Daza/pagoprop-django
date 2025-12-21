@@ -131,3 +131,35 @@ class FiltroComprobantesForm(forms.Form):
         super(FiltroComprobantesForm, self).__init__(*args, **kwargs)
         #filtrar solo apartamentos del usuario
         self.fields['apartamento'].queryset = user.apartamentos.all()
+
+from django.contrib.auth.forms import PasswordChangeForm
+
+# Formulario para editar perfil
+class EditarPerfilForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Usuario'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombres'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Apellidos'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email'
+            }),
+        }
+        labels = {
+            'username': 'Usuario',
+            'first_name': 'Nombres',
+            'last_name': 'Apellidos',
+            'email': 'Correo Electrónico',
+        }

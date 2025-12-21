@@ -139,10 +139,39 @@
                                         </td>
                                         <td>{{ asig.copropietario.email }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-danger" disabled title="Eliminar (próximamente)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
+                                        <a href="#" class="btn btn-sm btn-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalEliminar{{ asig.propietarioAptoID }}"
+                                        title="Eliminar asignación">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        
+                                        <!-- Modal de confirmación -->
+                                        <div class="modal fade" id="modalEliminar{{ asig.propietarioAptoID }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Confirmar Eliminación</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>¿Estás seguro de eliminar esta asignación?</strong></p>
+                                                        <ul>
+                                                            <li><strong>Copropietario:</strong> {{ asig.copropietario.get_full_name }}</li>
+                                                            <li><strong>Apartamento:</strong> {{ asig.apartamento.numeroApartamento }}</li>
+                                                        </ul>
+                                                        <p class="text-danger">El usuario perderá acceso a este apartamento.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <a href="{% url 'admin_eliminar_asignacion' asig.propietarioAptoID %}" class="btn btn-danger">
+                                                            Sí, eliminar
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

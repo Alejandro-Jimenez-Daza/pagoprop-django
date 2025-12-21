@@ -1,0 +1,111 @@
+{% extends 'pagoprop/herencia.html' %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>
+            <i class="fas fa-user-circle text-primary"></i> 
+            Mi Perfil
+        </h1>
+        <p class="text-muted">Información de tu cuenta</p>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <!-- Información personal -->
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-id-card"></i> Información Personal
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Usuario:</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nombres:</th>
+                        <td>{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Apellidos:</th>
+                        <td>{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de registro:</th>
+                        <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tipo de cuenta:</th>
+                        <td>
+                            {% if user.is_staff %}
+                                <span class="badge bg-warning text-dark">Administrador</span>
+                            {% else %}
+                                <span class="badge bg-primary">Copropietario</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'editar_perfil' %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar Información
+                    </a>
+                    <a href="{% url 'cambiar_password' %}" class="btn btn-warning">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas rápidas -->
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-3x text-primary mb-3"></i>
+                <h6 class="text-muted">Mis Apartamentos</h6>
+                <h2 class="text-primary">{{ user.apartamentos.count }}</h2>
+                <a href="{% url 'mis_apartamentos' %}" class="btn btn-sm btn-outline-primary">Ver apartamentos</a>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice fa-3x text-success mb-3"></i>
+                <h6 class="text-muted">Mis Comprobantes</h6>
+                <h2 class="text-success">{{ user.comprobantes.count }}</h2>
+                <a href="{% url 'mis_comprobantes' %}" class="btn btn-sm btn-outline-success">Ver comprobantes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}

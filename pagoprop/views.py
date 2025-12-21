@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistroForm, LoginForm, ComprobanteForm, FiltroComprobantesForm # Actualiza el import
+from .forms import RegistroForm, LoginForm, ComprobanteForm, FiltroComprobantesForm, EditarPerfilForm
 from .models import Apartamento, PropietarioApartamento, Comprobante, User
 # importo el paginador
 from django.core.paginator import Paginator
@@ -11,6 +11,9 @@ from django.core.paginator import Paginator
 #staff
 from django.contrib.admin.views.decorators import staff_member_required
 # from django.contrib.auth.models import User  # 👈 AGREGAR
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+
 
 
 # Vista de Registro
@@ -378,8 +381,70 @@ def admin_asignar_apartamento_view(request):
         'asignaciones':asignaciones
     })
 
+# Eliminar asignación de apartamento (Admin)
+@staff_member_required(login_url='login')
+def admin_eliminar_asignacion_view(request, asignacion_id):
+    try:
+        asignacion = PropietarioApartamento.objects.get(propietarioAptoID=asignacion_id)
+        copropietario = asignacion.copropietario.get_full_name()
+        apartamento = asignacion.apartamento.numeroApartamento
+        
+        asignacion.delete()
+        
+        messages.success(request, f'✅ Asignación eliminada: {copropietario} ya no tiene acceso al Apartamento {apartamento}')
+    except PropietarioApartamento.DoesNotExist:
+        messages.error(request, 'Asignación no encontrada.')
+    
+    return redirect('admin_asignar_apartamento')
 
 
+# Vista de perfil
+@login_required(login_url='login')
+def perfil_view(request):
+    return render(request, 'pagoprop/perfil.html', {
+        'user': request.user
+    })
 
+
+# Editar perfil
+@login_required(login_url='login')
+def editar_perfil_view(request):
+    if request.method == 'POST':
+        form = EditarPerfilForm(request.POST, instance=request.user)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, '✅ Perfil actualizado exitosamente.')
+            return redirect('perfil')
+        else:
+            messages.error(request, 'Error al actualizar el perfil. Verifica los datos.')
+    else:
+        form = EditarPerfilForm(instance=request.user)
+    
+    return render(request, 'pagoprop/editar_perfil.html', {
+        'form': form
+    })
+
+
+# Cambiar contraseña
+@login_required(login_url='login')
+def cambiar_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        
+        if form.is_valid():
+            user = form.save()
+            # Importante: Actualizar la sesión para que no cierre sesión
+            update_session_auth_hash(request, user)
+            messages.success(request, '✅ Contraseña cambiada exitosamente.')
+            return redirect('perfil')
+        else:
+            messages.error(request, 'Error al cambiar la contraseña. Verifica los datos.')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'pagoprop/cambiar_password.html', {
+        'form': form
+    })
 
 
