@@ -18,12 +18,44 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views  # 👈 AGREGAR
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('pagoprop.urls')),  # 👈 Conecta las URLs de pagoprop
+
+    # URLs de recuperación de contraseña
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(template_name='pagoprop/password_reset.html'),
+         name='password_reset'),
+    
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(template_name='pagoprop/password_reset_done.html'),
+         name='password_reset_done'),
+    
+    path('password-reset-confirm/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(template_name='pagoprop/password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    
+    path('password-reset-complete/', 
+         auth_views.PasswordResetCompleteView.as_view(template_name='pagoprop/password_reset_complete.html'),
+         name='password_reset_complete'),
+
+
+
 ]
 
 # Servir archivos media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# ```
+
+# **Explicación del flujo:**
+# ```
+# 1. /password-reset/          → Usuario ingresa email
+# 2. /password-reset/done/     → Mensaje "Revisa tu email"
+# 3. /password-reset-confirm/  → Usuario hace click en link del email
+# 4. /password-reset-complete/ → Éxito, contraseña cambiada

@@ -131,3 +131,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Configuración de Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alejodaza061@gmail.com'  # 👈 TU EMAIL
+EMAIL_HOST_PASSWORD = 'wieh ownz oxof lzye'  # 👈 LA CONTRASEÑA DE APLICACIÓN (16 caracteres)
+DEFAULT_FROM_EMAIL = 'PagoProp <alejodaza061@gmail.com>'
+
+# URLs para recuperación de contraseña (en producción cambiar por tu dominio)
+PASSWORD_RESET_TIMEOUT = 3600  # 1 hora (en segundos)

@@ -37,7 +37,13 @@
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 mb-3">Entrar</button>
-                            
+
+                            <div class="text-center mb-3">
+                                <a href="{% url 'password_reset' %}" class="text-muted small">
+                                    <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+
                             <p class="text-center mb-0">
                                 ¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a>
                             </p>
