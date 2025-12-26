@@ -316,25 +316,54 @@ def admin_dashboard_view(request):
 def admin_todos_comprobantes_view(request):
     # obtener todos los comprobantes de todos los usuarios
     comprobantes_list = Comprobante.objects.select_related(
-        'copropietario','apartamento'
+        'copropietario', 'apartamento'
     ).order_by('-fecha_creacion')
-
-    #paginador
-    paginator = Paginator(comprobantes_list,20)#20 registros por pagina
-    page_number= request.GET.get('page')
+    
+    # Crear el formulario de filtros
+    filtro_form = FiltroComprobantesForm(request.user, request.GET)
+    
+    # Aplicar filtros si el formulario es válido
+    if filtro_form.is_valid():
+        # Filtrar por apartamento
+        apartamento = filtro_form.cleaned_data.get('apartamento')
+        if apartamento:
+            comprobantes_list = comprobantes_list.filter(apartamento=apartamento)
+        
+        # Filtrar por fecha desde
+        fecha_desde = filtro_form.cleaned_data.get('fecha_desde')
+        if fecha_desde:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__gte=fecha_desde)
+        
+        # Filtrar por fecha hasta
+        fecha_hasta = filtro_form.cleaned_data.get('fecha_hasta')
+        if fecha_hasta:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__lte=fecha_hasta)
+        
+        # Filtrar por monto mínimo
+        monto_minimo = filtro_form.cleaned_data.get('monto_minimo')
+        if monto_minimo:
+            comprobantes_list = comprobantes_list.filter(monto__gte=monto_minimo)
+        
+        # Filtrar por monto máximo
+        monto_maximo = filtro_form.cleaned_data.get('monto_maximo')
+        if monto_maximo:
+            comprobantes_list = comprobantes_list.filter(monto__lte=monto_maximo)
+    
+    # Paginador
+    paginator = Paginator(comprobantes_list, 20)  # 20 registros por página
+    page_number = request.GET.get('page')
     comprobantes = paginator.get_page(page_number)
-
-    # estadisticas
-    from django.db.models import Sum, Count
-    stats= Comprobante.objects.aggregate(
-        total=Sum('monto'),
-        cantidad=Count('comprobanteID')
-    )
-
-
+    
+    # Estadísticas (sobre resultados filtrados)
+    from django.db.models import Count
+    stats = {
+        'cantidad': comprobantes_list.count()
+    }
+    
     return render(request, 'pagoprop/admin_todos_comprobantes.html', {
         'comprobantes': comprobantes,
-        'stats':stats
+        'stats': stats,
+        'filtro_form': filtro_form
     })
 
 
