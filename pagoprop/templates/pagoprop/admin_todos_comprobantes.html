@@ -52,9 +52,7 @@
                             <select name="apartamento" class="form-select" id="id_apartamento">
                                 <option value="">Todos los apartamentos</option>
                                 {% for apt in filtro_form.apartamento.field.queryset %}
-                                <option value="{{ apt.apartamentoID }}" {% if
-                                    request.GET.apartamento==apt.apartamentoID|stringformat:"s" %} selected {% endif %}>
-                                    Apto. {{ apt.numeroApartamento }}
+                                <option value="{{ apt.apartamentoID }}" {% if request.GET.apartamento == apt.apartamentoID|stringformat:"s" %} selected {% endif %}>Apto. {{ apt.numeroApartamento }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -105,8 +103,7 @@
                                 <i class="fas fa-times"></i> Limpiar filtros
                             </a>
 
-                            {% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or
-                            request.GET.monto_minimo or request.GET.monto_maximo %}
+                            {% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or request.GET.monto_minimo or request.GET.monto_maximo %}
                             <span class="badge bg-info ms-2">
                                 <i class="fas fa-filter"></i> Filtros activos
                             </span>
@@ -119,8 +116,7 @@
     </div>
 </div>
 
-{% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or request.GET.monto_minimo or
-request.GET.monto_maximo %}
+{% if request.GET.apartamento or request.GET.fecha_desde or request.GET.fecha_hasta or request.GET.monto_minimo or request.GET.monto_maximo %}
 <div class="alert alert-info mb-3">
     <i class="fas fa-info-circle"></i>
     Se encontraron <strong>{{ stats.cantidad }}</strong> comprobante(s) con los filtros aplicados.
