@@ -22,7 +22,7 @@ db.sqlite3
 db.sqlite3-journal
 
 # Archivos de usuarios (fotos, PDFs subidos)
-media/
+media/*
 !media/.gitkeep
 
 # Archivos estáticos compilados
@@ -48,3 +48,45 @@ desktop.ini
 # Backups
 *.bak
 *.backup
+
+# .gitignore
+
+# Entorno virtual
+venv/
+env/
+ENV/
+
+# Variables de entorno (CRÍTICO)
+.env
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Archivos media (uploads de usuarios)
+media/
+
+# Archivos estáticos compilados
+staticfiles/
+static_root/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -60,9 +60,11 @@
                 <hr>
                 <p class="mb-3">Para poder visualizar tu estado de cuenta y subir pagos, el administrador debe verificar tu información y asignarte tu apartamento correspondiente.</p>
                 
-                <a href="https://wa.me/573053328129?text=Hola%20Administrador,%20solicito%20asignación%20de%20apartamento.%0A%0A*Datos%20de%20Registro:*%0A-%20Nombre:%20{{ user.get_full_name|urlencode }}%0A-%20Usuario:%20{{ user.username|urlencode }}%0A-%20Apartamento:%20____" 
-                   target="_blank" 
-                   class="btn btn-info text-white fw-bold px-4 shadow-sm">
+                        
+                <!-- DESPUÉS (seguro, usa variable de entorno) -->
+                <a href="https://wa.me/{{ WHATSAPP_ADMIN }}?text=Hola%20Administrador,%20solicito%20asignación%20de%20apartamento.%0A%0A*Datos%20de%20Registro:*%0A-%20Nombre:%20{{ user.get_full_name|urlencode }}%0A-%20Usuario:%20{{ user.username|urlencode }}%0A-%20Apartamento:%20____" 
+                target="_blank" 
+                class="btn btn-info text-white fw-bold px-4 shadow-sm">
                     <i class="fab fa-whatsapp me-2"></i> Notificar registro al administrador
                 </a>
             </div>
