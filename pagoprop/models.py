@@ -64,3 +64,4 @@ class Comprobante(models.Model):
     
     def __str__(self):
         return f"Comprobante ${self.monto} - {self.copropietario.username}"
+

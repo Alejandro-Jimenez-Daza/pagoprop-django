@@ -7,6 +7,7 @@ from .forms import RegistroForm, LoginForm, ComprobanteForm, FiltroComprobantesF
 from .models import Apartamento, PropietarioApartamento, Comprobante, User
 # importo el paginador
 from django.core.paginator import Paginator
+
 #importo formulario de filtros
 #staff
 from django.contrib.admin.views.decorators import staff_member_required
@@ -14,6 +15,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 
+
+#importaciones para excel
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
+from datetime import datetime
 
 
 # Vista de Registro
@@ -477,3 +484,141 @@ def cambiar_password_view(request):
     })
 
 
+
+@staff_member_required(login_url='login')
+def admin_todos_comprobantes_view(request):
+    # obtener todos los comprobantes de todos los usuarios
+    comprobantes_list = Comprobante.objects.select_related(
+        'copropietario', 'apartamento'
+    ).order_by('-fecha_creacion')
+    
+    # Crear el formulario de filtros
+    filtro_form = FiltroComprobantesForm(request.user, request.GET)
+    
+    # Aplicar filtros si el formulario es válido
+    if filtro_form.is_valid():
+        # Filtrar por apartamento
+        apartamento = filtro_form.cleaned_data.get('apartamento')
+        if apartamento:
+            comprobantes_list = comprobantes_list.filter(apartamento=apartamento)
+        
+        # Filtrar por fecha desde
+        fecha_desde = filtro_form.cleaned_data.get('fecha_desde')
+        if fecha_desde:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__gte=fecha_desde)
+        
+        # Filtrar por fecha hasta
+        fecha_hasta = filtro_form.cleaned_data.get('fecha_hasta')
+        if fecha_hasta:
+            comprobantes_list = comprobantes_list.filter(fecha_creacion__date__lte=fecha_hasta)
+        
+        # Filtrar por monto mínimo
+        monto_minimo = filtro_form.cleaned_data.get('monto_minimo')
+        if monto_minimo:
+            comprobantes_list = comprobantes_list.filter(monto__gte=monto_minimo)
+        
+        # Filtrar por monto máximo
+        monto_maximo = filtro_form.cleaned_data.get('monto_maximo')
+        if monto_maximo:
+            comprobantes_list = comprobantes_list.filter(monto__lte=monto_maximo)
+    
+    # Paginador
+    paginator = Paginator(comprobantes_list, 20)
+    page_number = request.GET.get('page')
+    comprobantes = paginator.get_page(page_number)
+    
+    # Estadísticas
+    from django.db.models import Count
+    stats = {
+        'cantidad': comprobantes_list.count()
+    }
+    
+    # 👇 AGREGAR ESTO: Todos los apartamentos para el modal
+    todos_apartamentos = Apartamento.objects.all().order_by('numeroApartamento')
+    
+    return render(request, 'pagoprop/admin_todos_comprobantes.html', {
+        'comprobantes': comprobantes,
+        'stats': stats,
+        'filtro_form': filtro_form,
+        'todos_apartamentos': todos_apartamentos  # 👈 NUEVO
+    })
+
+@staff_member_required(login_url='login')
+def exportar_comprobantes_excel(request):
+    """
+    Vista para exportar comprobantes a Excel aplicando los mismos filtros
+    que en la vista de administración.
+    """
+    # 1. Obtener la base de datos de comprobantes
+    comprobantes = Comprobante.objects.select_related('copropietario', 'apartamento').all()
+
+    # 2. Capturar filtros del request (los mismos que usa el formulario del modal)
+    apartamento_id = request.GET.get('apartamento')
+    fecha_desde = request.GET.get('fecha_desde')
+    fecha_hasta = request.GET.get('fecha_hasta')
+    monto_min = request.GET.get('monto_minimo')
+    monto_max = request.GET.get('monto_maximo')
+
+    # 3. Aplicar filtros si existen
+    if apartamento_id:
+        comprobantes = comprobantes.filter(apartamento_id=apartamento_id)
+    if fecha_desde:
+        comprobantes = comprobantes.filter(fecha_creacion__date__gte=fecha_desde)
+    if fecha_hasta:
+        comprobantes = comprobantes.filter(fecha_creacion__date__lte=fecha_hasta)
+    if monto_min:
+        comprobantes = comprobantes.filter(monto__gte=monto_min)
+    if monto_max:
+        comprobantes = comprobantes.filter(monto__lte=monto_max)
+
+    # 4. Crear el libro de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Comprobantes Recaudados"
+
+    # Estilos básicos
+    font_bold = Font(bold=True, color="FFFFFF")
+    fill_header = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    center_aligned = Alignment(horizontal="center")
+
+    # Encabezados
+    headers = ['ID', 'Copropietario', 'Email', 'Apartamento', 'Monto', 'Fecha']
+    ws.append(headers)
+
+    # Aplicar estilos a la primera fila
+    for cell in ws[1]:
+        cell.font = font_bold
+        cell.fill = fill_header
+        cell.alignment = center_aligned
+
+    # 5. Agregar los datos
+    for comp in comprobantes:
+        ws.append([
+            comp.comprobanteID,
+            comp.copropietario.get_full_name() if comp.copropietario else "Sin asignar",
+            comp.copropietario.email if comp.copropietario else "",
+            f"Apto. {comp.apartamento.numeroApartamento}" if comp.apartamento else "N/A",
+            comp.monto,
+            comp.fecha_creacion.strftime('%d/%m/%Y %H:%M') if comp.fecha_creacion else ""
+        ])
+
+    # 6. Ajustar ancho de columnas automáticamente
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except: pass
+        ws.column_dimensions[column].width = max_length + 2
+
+    # 7. Preparar la respuesta HTTP
+    nombre_archivo = f"Reporte_Comprobantes_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    
+    wb.save(response)
+    return response

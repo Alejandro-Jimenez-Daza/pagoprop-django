@@ -1,80 +1,198 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - PagoProp</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .main-container {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .illustration-side {
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .illustration-side img {
+            max-width: 85%;
+            height: auto;
+            /* Suave animación de flotado */
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .form-side {
+            padding: 3rem !important;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        /* Estilo para los inputs de Django */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        .form-control {
+            border-radius: 10px;
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-register {
+            background-color: var(--secondary-color);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+
+        .btn-register:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        .brand-title {
+            color: var(--primary-color);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Registro de Copropietario</h2>
-                        
-                        {% if messages %}
+
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-11 col-xl-10">
+                <div class="card main-container shadow-lg">
+                    <div class="row g-0">
+
+                        <div class="col-md-5 d-none d-md-flex illustration-side">
+                            <h2 class="brand-title mb-4">PagoProp</h2>
+                            <img src="../../static/images/3.svg" alt="Registro">
+                            <div class="mt-5 text-center">
+                                <h5 class="fw-bold">Gestión inteligente</h5>
+                                <p class="text-muted small">Únete a la comunidad de copropietarios más eficiente.</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 form-side">
+                            <h3 class="fw-bold mb-2">Crear Cuenta</h3>
+                            <p class="text-muted mb-4">Ingresa tus datos para registrarte en el sistema.</p>
+
+                            {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-info-circle me-2"></i> {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                             {% endfor %}
-                        {% endif %}
-                        
-                        <form method="POST">
-                            {% csrf_token %}
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Usuario</label>
-                                {{ form.username }}
-                                {% if form.username.errors %}
-                                    <div class="text-danger small">{{ form.username.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger small">{{ form.email.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nombres</label>
-                                    {{ form.first_name }}
+                            {% endif %}
+
+                            <form method="POST">
+                                {% csrf_token %}
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nombre de Usuario</label>
+                                        {{ form.username }}
+                                        {% if form.username.errors %}
+                                        <div class="text-danger x-small mt-1">{{ form.username.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Correo Electrónico</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                        <div class="text-danger x-small mt-1">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Apellidos</label>
-                                    {{ form.last_name }}
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nombres</label>
+                                        {{ form.first_name }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Apellidos</label>
+                                        {{ form.last_name }}
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Contraseña</label>
-                                {{ form.password1 }}
-                                {% if form.password1.errors %}
-                                    <div class="text-danger small">{{ form.password1.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Confirmar Contraseña</label>
-                                {{ form.password2 }}
-                                {% if form.password2.errors %}
-                                    <div class="text-danger small">{{ form.password2.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <button type="submit" class="btn btn-success w-100 mb-3">Registrarse</button>
-                            
-                            <p class="text-center mb-0">
-                                ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
-                            </p>
-                        </form>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Contraseña</label>
+                                    {{ form.password1 }}
+                                    {% if form.password1.errors %}
+                                    <div class="text-danger x-small mt-1">{{ form.password1.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Confirmar Contraseña</label>
+                                    {{ form.password2 }}
+                                    {% if form.password2.errors %}
+                                    <div class="text-danger x-small mt-1">{{ form.password2.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <button type="submit" class="btn btn-success btn-register w-100 mb-3 text-white">
+                                    <i class="fas fa-user-plus me-2"></i> Completar Registro
+                                </button>
+
+                                <div class="text-center">
+                                    <span class="text-muted">¿Ya tienes cuenta?</span>
+                                    <a href="{% url 'login' %}" class="fw-bold text-decoration-none"
+                                        style="color: var(--primary-color);">Inicia sesión aquí</a>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -82,4 +200,5 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -1,7 +1,17 @@
 from django.urls import path
 from . import views
+from django.shortcuts import redirect
+
+def home_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return redirect('login')
 
 urlpatterns = [
+
+    #home
+    path('', home_redirect, name='home'),
+
     # Autenticación
     path('registro/', views.registro_view, name='registro'),
     path('login/', views.login_view, name='login'),
@@ -24,4 +34,5 @@ urlpatterns = [
     path('admin-comprobantes/', views.admin_todos_comprobantes_view, name='admin_todos_comprobantes'),
     path('admin-asignar/', views.admin_asignar_apartamento_view, name='admin_asignar_apartamento'),
     path('admin-eliminar-asignacion/<int:asignacion_id>/', views.admin_eliminar_asignacion_view, name='admin_eliminar_asignacion'),
+    path('admin-exportar-excel/', views.exportar_comprobantes_excel, name='admin_exportar_excel'),  # 👈 NUEVA
 ]

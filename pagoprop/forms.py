@@ -34,6 +34,16 @@ class RegistroForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
 
+    def clean_email(self):
+        # Se ejecuta antes de guardar el formulario
+        email = self.cleaned_data.get('email')
+    
+        if User.objects.filter(email=email).exists():
+        # Si ya existe un usuario con ese email, muestra error
+            raise forms.ValidationError('Este email ya está registrado.')
+    
+        return email
+
 
 # Formulario de Login
 class LoginForm(AuthenticationForm):
