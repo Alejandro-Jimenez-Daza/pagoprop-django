@@ -1,0 +1,50 @@
+# Archivos de entorno (CONTRASEÑAS Y SECRETOS)
+.env
+.env.local
+.env.*.local
+
+# Entorno virtual de Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos compilados de Python
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos de usuarios (fotos, PDFs subidos)
+media/
+!media/.gitkeep
+
+# Archivos estáticos compilados
+staticfiles/
+static_root/
+
+# Logs
+*.log
+logs/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backups
+*.bak
+*.backup
